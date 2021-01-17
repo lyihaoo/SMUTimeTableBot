@@ -1,4 +1,4 @@
+allSet = """File Monster all Full! 🙊
+            <b>Commands</b> /week - List all the lessons you have in a week"""
 
-x, y, z = range(3)
-
-print(x, y, z)
+print(allSet)

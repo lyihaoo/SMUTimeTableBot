@@ -41,12 +41,34 @@ def newTimeTable(update: Update, context: CallbackContext):
 
 def generate(update: Update, context: CallbackContext):
     """Save File into Server and Let User Know what are the available commands"""
-    update.message.reply_text("Generating Assets")
+    update.message.reply_text("Dumping your files into the File Monster...")
     userID = str(update.message.chat.id)
     
     fileObj = context.bot.getFile(update.message.document.file_id)
 
     fileObj.download('./userFiles/'+userID+'.csv')
+
+    
+    msg = """File Monster ate the File! 🙊
+\n<b>Commands</b>
+/newTimeTable - Update your time table
+/today - See your lessons for today
+/tmr - See your lessons for tomorrow
+/week - See all the lessons you have in a week"""
+
+    update.message.reply_text(msg, parse_mode='HTML')
+
+    return ConversationHandler.END
+
+def wrongType(update: Update, context: CallbackContext):
+    """Let User Know Error"""
+    
+    msg = """Oops! Please only send me a valid .CSV file downloaded from BOSS.
+\nIf you would like to retry just upload or drag and drop another file.
+If you would like to cancel type /cancel."""
+
+    update.message.reply_text(msg)
+    return FILE
 
 def cancel(update: Update, context: CallbackContext):
     """Handle Cancel Requests"""
@@ -54,13 +76,52 @@ def cancel(update: Update, context: CallbackContext):
 
     return ConversationHandler.END
 
+def seeToday(update: Update, context: CallbackContext):
+    """Call generateToday fn and return user their lesson for today"""
+    USERID = str(update.message.chat.id)
+
+    try:
+        result = generateToday(USERID)
+        update.message.reply_text(result, parse_mode='HTML')
+    except:
+        update.message.reply_text(
+            'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
+        )
+
+def seeTmr(update: Update, context: CallbackContext):
+    """Call generateTmr fn and return their schedule for tmr"""
+    USERID = str(update.message.chat.id)
+
+    try:
+        result = generateTmr(USERID)
+        update.message.reply_text(result, parse_mode='HTML')
+    except:
+        update.message.reply_text(
+            'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
+        )
+
 def week(update: Update, context: CallbackContext):
     """Call generateWeek fn and return user their week outlook"""
     USERID = str(update.message.chat.id)
 
-    result = generateWeek(USERID)
-    update.message.reply_text(result, parse_mode='HTML')
+    try:
+        result = generateWeek(USERID)
+        update.message.reply_text(result, parse_mode='HTML')
+    except:
+        update.message.reply_text(
+            'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
+        )
 
+def seeCommands(update: Update, context: CallbackContext):
+    """Generate All Commands for User to Reference"""
+
+    msg = """<b>Commands Available</b>
+/newTimeTable - Update your time table
+/today - See your lessons for today
+/tmr - See your lessons for tomorrow
+/week - See all the lessons you have in a week"""
+
+    update.message.reply_text(msg, parse_mode="HTML")
 
 def main():
     """Start the bot."""
@@ -79,14 +140,17 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('newTimeTable', newTimeTable)],
         states={
-            FILE: [MessageHandler(Filters.document.file_extension("csv"), generate)]
+            FILE: [MessageHandler(Filters.document.file_extension("csv"), generate), CommandHandler('cancel', cancel), MessageHandler(Filters.all, wrongType)]
         },
         fallbacks = [CommandHandler('cancel', cancel)]
     )
 
     dp.add_handler(conv_handler)
     dp.add_handler(CommandHandler('week',week))
-
+    dp.add_handler(CommandHandler('today',seeToday))
+    dp.add_handler(CommandHandler('tmr',seeTmr))
+    dp.add_handler(CommandHandler('commands',seeCommands))
+    
     # log all errors
     dp.add_error_handler(error)
 
