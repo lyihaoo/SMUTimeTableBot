@@ -15,6 +15,8 @@ def generateToday(USERID):
     df = getDF(USERID)
 
     filterClass = df[df['Meeting Type'] == 'CLASS'].sort_values(by='Start Time')
+    if convertDate(filterClass['End Date'][0]) < datetime.now():
+        return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to update your time table'
 
     dayToday = datetime.today().weekday()
 
@@ -40,6 +42,8 @@ def generateTmr(USERID):
     df = getDF(USERID)
 
     filterClass = df[df['Meeting Type'] == 'CLASS'].sort_values(by='Start Time')
+    if convertDate(filterClass['End Date'][0]) < datetime.now():
+        return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to update your time table'
 
     dayToday = datetime.today().weekday()
 
@@ -71,19 +75,21 @@ def generateWeek(USERID):
 
     extracted = df[df['Meeting Type'] == 'CLASS'].sort_values(by='Start Time')
 
+    if convertDate(extracted['End Date'][0]) < datetime.now():
+        return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to update your time table'
+
     resultArr = {'Mon':[], 'Tue':[], 'Wed':[], 'Thu':[], 'Fri':[]}
 
     for index, row in extracted.iterrows():
-            temp = '<b>'+ convertTime(row['Start Time']) + ' - ' + convertTime(row['End Time']) + ' (' + row['Venue'] + ')</b> | '+ row['Sect'] +' | <b>' + row['Code'] + '</b> <i>' + row['Description'] +'</i>'
+        temp = '<b>'+ convertTime(row['Start Time']) + ' - ' + convertTime(row['End Time']) + ' (' + row['Venue'] + ')</b> | '+ row['Sect'] +' | <b>' + row['Code'] + '</b> <i>' + row['Description'] +'</i>'
 
-            resultArr[row['Day(s)']].append(temp)
+        resultArr[row['Day(s)']].append(temp)
     
     toReturn = ''
 
     for key in resultArr:
         
         toReturn += '<b>'+key+'</b>\n'
-
 
         if resultArr[key] != []:
             for element in resultArr[key]:
@@ -104,3 +110,7 @@ def convertTime(x):
     else:
         return ':'.join(x) + ' AM'
 
+def convertDate(dateStr):
+    """Utility to convert str Date to Datetime object"""
+
+    return datetime.strptime(dateStr, '%d-%b-%Y')
