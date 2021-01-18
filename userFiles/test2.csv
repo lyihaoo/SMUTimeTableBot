@@ -1,8 +1,8 @@
-﻿"Course Career","Term","Course Type","Code","Description","Sect","Status","Meeting Type","Start Date","End Date","Day(s)","Start Time","End Time","Venue","Instructor(s)"
-"Undergraduate","2019-20 Term 3B","COURSE","COR-MGMT2211","Robotics, UAVs and Dig Innovtn","G1","Enrolled","CLASS","15-Jun-2020","15-Jul-2020","Tue","12:00","15:15","SIS Seminar Rm 3.3","THOMAS MENKHOFF; KAN SIEW NING; EUGENE TAN KHENG BOON"
-"Undergraduate","2019-20 Term 3B","COURSE","COR-MGMT2211","Robotics, UAVs and Dig Innovtn","G1","Enrolled","CLASS","15-Jun-2020","15-Jul-2020","Wed","12:00","15:15","SIS Seminar Rm 3.3","THOMAS MENKHOFF; KAN SIEW NING; EUGENE TAN KHENG BOON"
-"Undergraduate","2019-20 Term 3B","COURSE","COR-MGMT2211","Robotics, UAVs and Dig Innovtn","G1","Enrolled","CLASS","15-Jun-2020","15-Jul-2020","Thu","12:00","15:15","SIS Seminar Rm 3.3","THOMAS MENKHOFF; KAN SIEW NING; EUGENE TAN KHENG BOON"
-"Undergraduate","2019-20 Term 3B","COURSE","COR-MGMT2211","Robotics, UAVs and Dig Innovtn","G1","Enrolled","EXAM","16-Jul-2020","16-Jul-2020","Thu","13:00","16:00","",""
-"Undergraduate","2019-20 Term 3B","COURSE","IS434","Social Analytics and Applns (SMU-X)","G10","Enrolled","CLASS","15-Jun-2020","15-Jul-2020","Mon","15:30","18:45","SOE/SOSS Seminar Rm 3-3","KYONG JIN SHIM"
-"Undergraduate","2019-20 Term 3B","COURSE","IS434","Social Analytics and Applns (SMU-X)","G10","Enrolled","CLASS","15-Jun-2020","15-Jul-2020","Tue","15:30","18:45","SOE/SOSS Seminar Rm 3-3","KYONG JIN SHIM"
-"Undergraduate","2019-20 Term 3B","COURSE","IS434","Social Analytics and Applns (SMU-X)","G10","Enrolled","CLASS","15-Jun-2020","15-Jul-2020","Thu","15:30","18:45","SOE/SOSS Seminar Rm 3-3","KYONG JIN SHIM"
+﻿Course Career,Term,Course Type,Code,Description,Sect,Status,Meeting Type,Start Date,End Date,Day(s),Start Time,End Time,Venue,Instructor(s)
+Undergraduate,2019-20 Term 3B,COURSE,COR-MGMT2211,"Robotics, UAVs and Dig Innovtn",G1,Enrolled,CLASS,15-Jun-20,15-Jul-20,Tue,12:00,15:15,SIS Seminar Rm 3.3,THOMAS MENKHOFF; KAN SIEW NING; EUGENE TAN KHENG BOON
+Undergraduate,2019-20 Term 3B,COURSE,COR-MGMT2211,"Robotics, UAVs and Dig Innovtn",G1,Enrolled,CLASS,15-Jun-20,15-Jul-20,Wed,12:00,15:15,SIS Seminar Rm 3.3,THOMAS MENKHOFF; KAN SIEW NING; EUGENE TAN KHENG BOON
+Undergraduate,2019-20 Term 3B,COURSE,COR-MGMT2211,"Robotics, UAVs and Dig Innovtn",G1,Enrolled,CLASS,15-Jun-20,15-Jul-20,Thu,12:00,15:15,SIS Seminar Rm 3.3,THOMAS MENKHOFF; KAN SIEW NING; EUGENE TAN KHENG BOON
+Undergraduate,2019-20 Term 3B,COURSE,COR-MGMT2211,"Robotics, UAVs and Dig Innovtn",G1,Enrolled,EXAM,16-Jul-20,16-Jul-20,Thu,13:00,16:00,,
+Undergraduate,2019-20 Term 3B,COURSE,IS434,Social Analytics and Applns (SMU-X),G10,Enrolled,CLASS,15-Jun-20,15-Jul-20,Mon,15:30,18:45,SOE/SOSS Seminar Rm 3-3,KYONG JIN SHIM
+Undergraduate,2019-20 Term 3B,COURSE,IS434,Social Analytics and Applns (SMU-X),G10,Enrolled,CLASS,15-Jun-20,15-Jul-20,Tue,15:30,18:45,SOE/SOSS Seminar Rm 3-3,KYONG JIN SHIM
+Undergraduate,2019-20 Term 3B,COURSE,IS434,Social Analytics and Applns (SMU-X),G10,Enrolled,CLASS,15-Jun-20,15-Jul-20,Thu,15:30,18:45,SOE/SOSS Seminar Rm 3-3,KYONG JIN SHIM

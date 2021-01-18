@@ -54,7 +54,8 @@ def generate(update: Update, context: CallbackContext):
 /newTimeTable - Update your time table
 /today - See your lessons for today
 /tmr - See your lessons for tomorrow
-/week - See all the lessons you have in a week"""
+/week - See all the lessons you have in a week
+/exams - See your exams for this semester"""
 
     update.message.reply_text(msg, parse_mode='HTML')
 
@@ -112,6 +113,21 @@ def week(update: Update, context: CallbackContext):
             'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
         )
 
+def exams(update: Update, context: CallbackContext):
+    """Call generateExams fn and return user their exams outlook"""
+
+    USERID = str(update.message.chat.id)
+    
+    try:
+        result = generateExams(USERID)
+        update.message.reply_text(result, parse_mode='HTML')
+    except:
+        update.message.reply_text(
+            'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
+        )
+
+
+
 def seeCommands(update: Update, context: CallbackContext):
     """Generate All Commands for User to Reference"""
 
@@ -119,7 +135,8 @@ def seeCommands(update: Update, context: CallbackContext):
 /newTimeTable - Update your time table
 /today - See your lessons for today
 /tmr - See your lessons for tomorrow
-/week - See all the lessons you have in a week"""
+/week - See all the lessons you have in a week
+/exams - See your exams for this semester"""
 
     update.message.reply_text(msg, parse_mode="HTML")
 
@@ -149,6 +166,7 @@ def main():
     dp.add_handler(CommandHandler('today',seeToday))
     dp.add_handler(CommandHandler('tmr',seeTmr))
     dp.add_handler(CommandHandler('commands',seeCommands))
+    dp.add_handler(CommandHandler('exams', exams))
     
     # log all errors
     dp.add_error_handler(error)

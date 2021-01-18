@@ -1,5 +1,6 @@
 import pandas as pd
 import random
+from dateutil.parser import *
 from datetime import datetime
 
 emojiArr = ['🤯','😎','🥳','🤩','🤤']
@@ -15,7 +16,7 @@ def generateToday(USERID):
     df = getDF(USERID)
 
     filterClass = df[df['Meeting Type'] == 'CLASS'].sort_values(by='Start Time')
-    if convertDate(filterClass['End Date'][0]) < datetime.now():
+    if parse(filterClass['End Date'][0]) < datetime.now():
         return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to update your time table'
 
     dayToday = datetime.today().weekday()
@@ -42,7 +43,7 @@ def generateTmr(USERID):
     df = getDF(USERID)
 
     filterClass = df[df['Meeting Type'] == 'CLASS'].sort_values(by='Start Time')
-    if convertDate(filterClass['End Date'][0]) < datetime.now():
+    if parse(filterClass['End Date'][0]) < datetime.now():
         return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to update your time table'
 
     dayToday = datetime.today().weekday()
@@ -75,7 +76,7 @@ def generateWeek(USERID):
 
     extracted = df[df['Meeting Type'] == 'CLASS'].sort_values(by='Start Time')
 
-    if convertDate(extracted['End Date'][0]) < datetime.now():
+    if parse(extracted['End Date'][0]) < datetime.now():
         return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to update your time table'
 
     resultArr = {'Mon':[], 'Tue':[], 'Wed':[], 'Thu':[], 'Fri':[]}
@@ -99,6 +100,28 @@ def generateWeek(USERID):
     
     return toReturn
 
+def generateExams(USERID):
+    df = getDF(USERID)
+
+    extracted = df[df['Meeting Type'] == 'EXAM']
+
+    extracted2 = extracted.assign(dateObj = pd.to_datetime(extracted['Start Date'], infer_datetime_format=True))
+    
+    sortedDF = extracted2.sort_values(['dateObj', 'Start Time'])
+
+    if sortedDF['dateObj'].iloc[-1] < datetime.now():
+        return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to update your time table'
+
+    toReturn = ''
+
+    for index, row in sortedDF.iterrows():
+        toReturn += '<b>'+ row['Start Date'] +'</b> | '+ convertTime(row['Start Time']) + ' - ' + convertTime(row['End Time']) + ' | <b>' + row['Code'] + '</b> <i>' + row['Description'] +'</i>\n'
+
+    if toReturn == '':
+        return 'Woohoo! You have no exams for this semester! '+random.choice(emojiArr)
+    else:
+        return toReturn
+
 def convertTime(x):
     """Utility Function to Convert 24 Hour input to 12 Hour Input"""
     x = x.split(':')
@@ -110,7 +133,7 @@ def convertTime(x):
     else:
         return ':'.join(x) + ' AM'
 
-def convertDate(dateStr):
-    """Utility to convert str Date to Datetime object"""
-
-    return datetime.strptime(dateStr, '%d-%b-%Y')
+# print(generateToday('test'))
+# print(generateTmr('test'))
+# print(generateWeek('test'))
+# print(generateExams('test'))
