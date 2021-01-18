@@ -7,7 +7,7 @@ To Update
 import logging
 from utility import *
 
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
 
 # Enable logging
@@ -23,11 +23,7 @@ FILE = range(1)
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update:Update, context: CallbackContext):
     """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi!')
-
-def help(update:Update, context: CallbackContext):
-    """Send a message when the command /help is issued."""
-    update.message.reply_text('Help!')
+    update.message.reply_text('Hello there! Use /newTimeTable to begin!')
 
 def error(update:Update, context: CallbackContext):
     """Log Errors caused by Updates."""
@@ -35,7 +31,11 @@ def error(update:Update, context: CallbackContext):
 
 def newTimeTable(update: Update, context: CallbackContext):
     """Ask for New Timetable"""
-    update.message.reply_text("Send CSV Timetable")
+    keyboard = [[InlineKeyboardButton("Direct me to Boss", url='https://boss.intranet.smu.edu.sg/TTPlanner.aspx')]]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    update.message.reply_text("Download your CSV Timetable from Boss and Send it To Me or use /cancel to cancel the request.", reply_markup = reply_markup)
 
     return FILE
 
@@ -135,7 +135,6 @@ def main():
 
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help))
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('newTimeTable', newTimeTable)],
