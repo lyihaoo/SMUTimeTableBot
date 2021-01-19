@@ -2,6 +2,7 @@ import pandas as pd
 import random
 from dateutil.parser import *
 from datetime import datetime
+import json
 
 emojiArr = ['🤯','😎','🥳','🤩','🤤']
 dayArr = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
@@ -133,7 +134,4 @@ def convertTime(x):
     else:
         return ':'.join(x) + ' AM'
 
-# print(generateToday('test'))
-# print(generateTmr('test'))
-# print(generateWeek('test'))
-# print(generateExams('test'))
+

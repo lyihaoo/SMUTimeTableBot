@@ -6,10 +6,11 @@ To Update
 """
 import logging
 from utility import *
+from uuid import uuid4
 
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto, Bot
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto, Bot, InlineQueryResultArticle, InputTextMessageContent
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext, CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext, CallbackQueryHandler, InlineQueryHandler
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -34,21 +35,17 @@ def error(update:Update, context: CallbackContext):
 
 def newTimeTable(update: Update, context: CallbackContext):
     """Ask User to select which device they using"""
+    keyboard =[[
+        InlineKeyboardButton("PC/Laptop", callback_data=str(COMPUTER))
+    ], [
+        InlineKeyboardButton('Mobile', callback_data=str(MOBILE))
+    ]]
 
-    if update.message.chat.type != 'private':
-        wrongChatType(update)
-    else:
-        keyboard =[[
-            InlineKeyboardButton("PC/Laptop", callback_data=str(COMPUTER))
-        ], [
-            InlineKeyboardButton('Mobile', callback_data=str(MOBILE))
-        ]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
 
-        reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text("Please choose which device you are using or use /cancel to cancel the request...", reply_markup= reply_markup)
 
-        update.message.reply_text("Please choose which device you are using or use /cancel to cancel the request...", reply_markup= reply_markup)
-
-        return DEVICE
+    return DEVICE
 
 def computer(update: Update, context: CallbackContext):
     """PC/Laptop Format Ask for New Timetable"""
@@ -128,70 +125,52 @@ def cancel(update: Update, context: CallbackContext):
 
 def seeToday(update: Update, context: CallbackContext):
     """Call generateToday fn and return user their lesson for today"""
-    if update.message.chat.type != 'private':
-        wrongChatType(update)
-    else:
-        USERNAME= str(update.message.chat.username)
+    USERNAME= str(update.message.chat.username)
 
-        try:
-            result = generateToday(USERNAME)
-            update.message.reply_text(result, parse_mode='HTML')
-        except:
-            update.message.reply_text(
-                'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
-            )
+    try:
+        result = generateToday(USERNAME)
+        update.message.reply_text(result, parse_mode='HTML')
+    except:
+        update.message.reply_text(
+            'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
+        )
 
 def seeTmr(update: Update, context: CallbackContext):
     """Call generateTmr fn and return their schedule for tmr"""
-    if update.message.chat.type != 'private':
-        wrongChatType(update)
-    else:
-        USERNAME= str(update.message.chat.username)
+    USERNAME= str(update.message.chat.username)
 
-        try:
-            result = generateTmr(USERNAME)
-            update.message.reply_text(result, parse_mode='HTML')
-        except:
-            update.message.reply_text(
-                'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
-            )
+    try:
+        result = generateTmr(USERNAME)
+        update.message.reply_text(result, parse_mode='HTML')
+    except:
+        update.message.reply_text(
+            'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
+        )
 
 def week(update: Update, context: CallbackContext):
     """Call generateWeek fn and return user their week outlook"""
-    if update.message.chat.type != 'private':
-        wrongChatType(update)
-    else:
-        USERNAME= str(update.message.chat.username)
+    USERNAME= str(update.message.chat.username)
 
-        try:
-            result = generateWeek(USERNAME)
-            update.message.reply_text(result, parse_mode='HTML')
-        except:
-            update.message.reply_text(
-                'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
-            )
+    try:
+        result = generateWeek(USERNAME)
+        update.message.reply_text(result, parse_mode='HTML')
+    except:
+        update.message.reply_text(
+            'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
+        )
 
 def exams(update: Update, context: CallbackContext):
     """Call generateExams fn and return user their exams outlook"""
-    if update.message.chat.type != 'private':
-        wrongChatType(update)
-    else:
 
-        USERNAME= str(update.message.chat.username)
-        
-        try:
-            result = generateExams(USERNAME)
-            update.message.reply_text(result, parse_mode='HTML')
-        except:
-            update.message.reply_text(
-                'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
-            )
-
-def wrongChatType(update):
-    """Let The User Know This Command Can Only be Used in Private Chat with the Bot"""
-    update.message.reply_text("This command can only be used in private chat.", reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton('Go to Private Chat', url='https://telegram.me/smu_timetablebot')]]))
-
-
+    USERNAME= str(update.message.chat.username)
+    
+    try:
+        result = generateExams(USERNAME)
+        update.message.reply_text(result, parse_mode='HTML')
+    except:
+        update.message.reply_text(
+            'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
+        )
 
 def seeCommands(update: Update, context: CallbackContext):
     """Generate All Commands for User to Reference"""
@@ -205,6 +184,28 @@ def seeCommands(update: Update, context: CallbackContext):
 
     update.message.reply_text(msg, parse_mode="HTML")
 
+def commonTime(update: Update, context: CallbackContext):
+    """Handle Inline Query"""
+    print('update=',update)
+
+    keyboard = [
+        [InlineKeyboardButton('To Bot', url = 'https://telegram.me/smu_timetablebot')]
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    results = [
+        InlineQueryResultArticle(
+            id= uuid4(),
+            title='Test',
+            input_message_content=InputTextMessageContent('Test Msg'),
+            reply_markup = reply_markup
+        )
+    ]
+
+    update.inline_query.answer(results)
+
+
+
 def main():
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
@@ -216,10 +217,10 @@ def main():
     dp = updater.dispatcher
 
     #New Filter Class for Groups & Private
-    privateChatFilter = Filters.chat_type.private
+    # privateChatFilter = Filters.chat_type.private
 
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", start, privateChatFilter))
+    dp.add_handler(CommandHandler("start", start))
 
     timeTableConv = ConversationHandler(
         entry_points=[CommandHandler('newTimeTable', newTimeTable)],
@@ -238,15 +239,15 @@ def main():
         allow_reentry= True
     )
 
-    
-
     dp.add_handler(timeTableConv)
     dp.add_handler(CommandHandler('week',week))
     dp.add_handler(CommandHandler('today',seeToday))
     dp.add_handler(CommandHandler('tmr',seeTmr))
     dp.add_handler(CommandHandler('commands',seeCommands))
     dp.add_handler(CommandHandler('exams', exams))
-    
+    dp.add_handler(InlineQueryHandler(commonTime))
+
+
     # log all errors
     dp.add_error_handler(error)
 
