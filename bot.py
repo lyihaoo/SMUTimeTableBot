@@ -7,8 +7,8 @@ To Update
 import logging
 from utility import *
 
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext, CallbackQueryHandler
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -16,7 +16,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-FILE = range(1)
+FILE, COMPUTER, MOBILE, DEVICE = range(4)
 
 
 # Define a few command handlers. These usually take the two arguments update and
@@ -30,14 +30,49 @@ def error(update:Update, context: CallbackContext):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 def newTimeTable(update: Update, context: CallbackContext):
-    """Ask for New Timetable"""
+    """Ask User to select which device they using"""
+    keyboard =[[
+        InlineKeyboardButton("PC/Laptop", callback_data=str(COMPUTER))
+    ], [
+        InlineKeyboardButton('Mobile', callback_data=str(MOBILE))
+    ]]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    update.message.reply_text("Please choose which device you are using...", reply_markup= reply_markup)
+
+    return DEVICE
+
+def computer(update: Update, context: CallbackContext):
+    """PC/Laptop Format Ask for New Timetable"""
+
+    query = update.callback_query
+
+    query.answer()
+
     keyboard = [[InlineKeyboardButton("Direct me to Boss", url='https://boss.intranet.smu.edu.sg/TTPlanner.aspx')]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    update.message.reply_text("Download your CSV Timetable from Boss and Send it To Me or use /cancel to cancel the request.", reply_markup = reply_markup)
+    query.edit_message_text(text="Download your CSV Timetable from Boss and Send it To Me or use /cancel to cancel the request.", reply_markup = reply_markup)
 
     return FILE
+
+def mobile(update: Update, context: CallbackContext):
+    """Mobile Format Ask for New Timetable"""
+
+    query = update.callback_query
+
+    query.answer()
+
+    keyboard = [[InlineKeyboardButton("Direct me to Boss", url='https://boss.intranet.smu.edu.sg/TTPlanner.aspx')]]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    query.edit_message_text(text="Download your CSV Timetable from Boss and Send it To Me or use /cancel to cancel the request.", reply_markup = reply_markup)
+
+    return FILE
+
 
 def generate(update: Update, context: CallbackContext):
     """Save File into Server and Let User Know what are the available commands"""
@@ -127,7 +162,6 @@ def exams(update: Update, context: CallbackContext):
         )
 
 
-
 def seeCommands(update: Update, context: CallbackContext):
     """Generate All Commands for User to Reference"""
 
@@ -153,15 +187,24 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
 
-    conv_handler = ConversationHandler(
+    timeTableConv = ConversationHandler(
         entry_points=[CommandHandler('newTimeTable', newTimeTable)],
         states={
-            FILE: [MessageHandler(Filters.document.file_extension("csv"), generate), CommandHandler('cancel', cancel), MessageHandler(Filters.all, wrongType)]
+            DEVICE: [
+                CallbackQueryHandler(computer, pattern='^'+str(COMPUTER)+'$'),
+                CallbackQueryHandler(mobile, pattern='^'+str(MOBILE)+'$'),
+                CommandHandler('cancel', cancel)
+            ],
+            FILE: [
+                MessageHandler(Filters.document.file_extension("csv"), generate), CommandHandler('cancel', cancel), 
+                MessageHandler(Filters.all, wrongType)
+            ]
         },
-        fallbacks = [CommandHandler('cancel', cancel)]
+        fallbacks = [CommandHandler('cancel', cancel)],
+        allow_reentry= True
     )
 
-    dp.add_handler(conv_handler)
+    dp.add_handler(timeTableConv)
     dp.add_handler(CommandHandler('week',week))
     dp.add_handler(CommandHandler('today',seeToday))
     dp.add_handler(CommandHandler('tmr',seeTmr))
