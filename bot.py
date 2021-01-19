@@ -26,7 +26,7 @@ FILE, COMPUTER, MOBILE, DEVICE = range(4)
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update:Update, context: CallbackContext):
     """Send a message when the command /start is issued."""
-    update.message.reply_text('Hello there! Use /newTimeTable to begin!')
+    update.message.reply_text('Hello there! The bot is currently in v1.0. Use /newTimeTable to begin!')
 
 def error(update:Update, context: CallbackContext):
     """Log Errors caused by Updates."""
@@ -34,17 +34,21 @@ def error(update:Update, context: CallbackContext):
 
 def newTimeTable(update: Update, context: CallbackContext):
     """Ask User to select which device they using"""
-    keyboard =[[
-        InlineKeyboardButton("PC/Laptop", callback_data=str(COMPUTER))
-    ], [
-        InlineKeyboardButton('Mobile', callback_data=str(MOBILE))
-    ]]
 
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    if update.message.chat.type != 'private':
+        wrongChatType(update)
+    else:
+        keyboard =[[
+            InlineKeyboardButton("PC/Laptop", callback_data=str(COMPUTER))
+        ], [
+            InlineKeyboardButton('Mobile', callback_data=str(MOBILE))
+        ]]
 
-    update.message.reply_text("Please choose which device you are using or use /cancel to cancel the request...", reply_markup= reply_markup)
+        reply_markup = InlineKeyboardMarkup(keyboard)
 
-    return DEVICE
+        update.message.reply_text("Please choose which device you are using or use /cancel to cancel the request...", reply_markup= reply_markup)
+
+        return DEVICE
 
 def computer(update: Update, context: CallbackContext):
     """PC/Laptop Format Ask for New Timetable"""
@@ -57,7 +61,7 @@ def computer(update: Update, context: CallbackContext):
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    query.edit_message_text(text="Download your CSV Timetable from Boss and Send it To Me or use /cancel to cancel the request.", reply_markup = reply_markup)
+    query.edit_message_text(text="1. Login to Boss\n2. Download your CSV Timetable from Boss\n3. Send it To Me/Drag and drop the file into chat\n\nUse /cancel to cancel the request.", reply_markup = reply_markup)
     
     newBot = Bot(TOKEN)
 
@@ -76,7 +80,7 @@ def mobile(update: Update, context: CallbackContext):
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    query.edit_message_text(text="Download your CSV Timetable from Boss and Send it To Me or use /cancel to cancel the request.", reply_markup = reply_markup)
+    query.edit_message_text(text="1. Login to Boss\n2. Download your CSV Timetable from Boss\n3. Follow the image and share the file to me\n\nUse /cancel to cancel the request.", reply_markup = reply_markup)
     newBot = Bot(TOKEN)
 
     newBot.sendPhoto(chat_id = query.message.chat.id, photo = open('./iosBoss.jpg', 'rb'))
@@ -87,11 +91,11 @@ def mobile(update: Update, context: CallbackContext):
 def generate(update: Update, context: CallbackContext):
     """Save File into Server and Let User Know what are the available commands"""
     update.message.reply_text("Dumping your files into the File Monster...")
-    userID = str(update.message.chat.id)
+    USERNAME= str(update.message.chat.username)
     
     fileObj = context.bot.getFile(update.message.document.file_id)
 
-    fileObj.download('./userFiles/'+userID+'.csv')
+    fileObj.download('./userFiles/'+USERNAME+'.csv')
 
     
     msg = """File Monster ate the File! 🙊
@@ -124,52 +128,69 @@ def cancel(update: Update, context: CallbackContext):
 
 def seeToday(update: Update, context: CallbackContext):
     """Call generateToday fn and return user their lesson for today"""
-    USERID = str(update.message.chat.id)
+    if update.message.chat.type != 'private':
+        wrongChatType(update)
+    else:
+        USERNAME= str(update.message.chat.username)
 
-    try:
-        result = generateToday(USERID)
-        update.message.reply_text(result, parse_mode='HTML')
-    except:
-        update.message.reply_text(
-            'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
-        )
+        try:
+            result = generateToday(USERNAME)
+            update.message.reply_text(result, parse_mode='HTML')
+        except:
+            update.message.reply_text(
+                'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
+            )
 
 def seeTmr(update: Update, context: CallbackContext):
     """Call generateTmr fn and return their schedule for tmr"""
-    USERID = str(update.message.chat.id)
+    if update.message.chat.type != 'private':
+        wrongChatType(update)
+    else:
+        USERNAME= str(update.message.chat.username)
 
-    try:
-        result = generateTmr(USERID)
-        update.message.reply_text(result, parse_mode='HTML')
-    except:
-        update.message.reply_text(
-            'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
-        )
+        try:
+            result = generateTmr(USERNAME)
+            update.message.reply_text(result, parse_mode='HTML')
+        except:
+            update.message.reply_text(
+                'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
+            )
 
 def week(update: Update, context: CallbackContext):
     """Call generateWeek fn and return user their week outlook"""
-    USERID = str(update.message.chat.id)
+    if update.message.chat.type != 'private':
+        wrongChatType(update)
+    else:
+        USERNAME= str(update.message.chat.username)
 
-    try:
-        result = generateWeek(USERID)
-        update.message.reply_text(result, parse_mode='HTML')
-    except:
-        update.message.reply_text(
-            'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
-        )
+        try:
+            result = generateWeek(USERNAME)
+            update.message.reply_text(result, parse_mode='HTML')
+        except:
+            update.message.reply_text(
+                'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
+            )
 
 def exams(update: Update, context: CallbackContext):
     """Call generateExams fn and return user their exams outlook"""
+    if update.message.chat.type != 'private':
+        wrongChatType(update)
+    else:
 
-    USERID = str(update.message.chat.id)
-    
-    try:
-        result = generateExams(USERID)
-        update.message.reply_text(result, parse_mode='HTML')
-    except:
-        update.message.reply_text(
-            'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
-        )
+        USERNAME= str(update.message.chat.username)
+        
+        try:
+            result = generateExams(USERNAME)
+            update.message.reply_text(result, parse_mode='HTML')
+        except:
+            update.message.reply_text(
+                'Oops, unable to find your time table 🤐\n\nUse the command /newTimeTable to update your time table'
+            )
+
+def wrongChatType(update):
+    """Let The User Know This Command Can Only be Used in Private Chat with the Bot"""
+    update.message.reply_text("This command can only be used in private chat.", reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton('Go to Private Chat', url='https://telegram.me/smu_timetablebot')]]))
+
 
 
 def seeCommands(update: Update, context: CallbackContext):
@@ -194,8 +215,11 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
+    #New Filter Class for Groups & Private
+    privateChatFilter = Filters.chat_type.private
+
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("start", start, privateChatFilter))
 
     timeTableConv = ConversationHandler(
         entry_points=[CommandHandler('newTimeTable', newTimeTable)],
@@ -213,6 +237,8 @@ def main():
         fallbacks = [CommandHandler('cancel', cancel)],
         allow_reentry= True
     )
+
+    
 
     dp.add_handler(timeTableConv)
     dp.add_handler(CommandHandler('week',week))
