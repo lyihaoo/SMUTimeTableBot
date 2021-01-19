@@ -7,7 +7,8 @@ To Update
 import logging
 from utility import *
 
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto, Bot
+
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext, CallbackQueryHandler
 
 # Enable logging
@@ -15,6 +16,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+
+TOKEN = "1563865053:AAHTgGSPVfkfdymPGrVnSy5IZ1O_lyYAbNE"
 
 FILE, COMPUTER, MOBILE, DEVICE = range(4)
 
@@ -39,7 +42,7 @@ def newTimeTable(update: Update, context: CallbackContext):
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    update.message.reply_text("Please choose which device you are using...", reply_markup= reply_markup)
+    update.message.reply_text("Please choose which device you are using or use /cancel to cancel the request...", reply_markup= reply_markup)
 
     return DEVICE
 
@@ -55,6 +58,10 @@ def computer(update: Update, context: CallbackContext):
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     query.edit_message_text(text="Download your CSV Timetable from Boss and Send it To Me or use /cancel to cancel the request.", reply_markup = reply_markup)
+    
+    newBot = Bot(TOKEN)
+
+    newBot.sendPhoto(chat_id = query.message.chat.id, photo = open('./windowsBoss.png', 'rb'))
 
     return FILE
 
@@ -70,6 +77,9 @@ def mobile(update: Update, context: CallbackContext):
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     query.edit_message_text(text="Download your CSV Timetable from Boss and Send it To Me or use /cancel to cancel the request.", reply_markup = reply_markup)
+    newBot = Bot(TOKEN)
+
+    newBot.sendPhoto(chat_id = query.message.chat.id, photo = open('./iosBoss.jpg', 'rb'))
 
     return FILE
 
@@ -179,7 +189,7 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater("1563865053:AAHTgGSPVfkfdymPGrVnSy5IZ1O_lyYAbNE", use_context=True)
+    updater = Updater(TOKEN, use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
