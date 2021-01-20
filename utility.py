@@ -3,6 +3,7 @@ import random
 from dateutil.parser import *
 from datetime import datetime
 import json
+import time
 
 emojiArr = ['🤯','😎','🥳','🤩','🤤']
 dayArr = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
@@ -18,7 +19,7 @@ def generateToday(USERID):
 
     filterClass = df[df['Meeting Type'] == 'CLASS'].sort_values(by='Start Time')
     if parse(filterClass['End Date'][0]) < datetime.now():
-        return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to update your time table'
+        return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to feed File Monster your new time table'
 
     dayToday = datetime.today().weekday()
 
@@ -45,7 +46,7 @@ def generateTmr(USERID):
 
     filterClass = df[df['Meeting Type'] == 'CLASS'].sort_values(by='Start Time')
     if parse(filterClass['End Date'][0]) < datetime.now():
-        return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to update your time table'
+        return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to feed File Monster your new time table'
 
     dayToday = datetime.today().weekday()
 
@@ -78,7 +79,7 @@ def generateWeek(USERID):
     extracted = df[df['Meeting Type'] == 'CLASS'].sort_values(by='Start Time')
 
     if parse(extracted['End Date'][0]) < datetime.now():
-        return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to update your time table'
+        return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to feed File Monster your new time table'
 
     resultArr = {'Mon':[], 'Tue':[], 'Wed':[], 'Thu':[], 'Fri':[]}
 
@@ -111,7 +112,7 @@ def generateExams(USERID):
     sortedDF = extracted2.sort_values(['dateObj', 'Start Time'])
 
     if sortedDF['dateObj'].iloc[-1] < datetime.now():
-        return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to update your time table'
+        return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to feed File Monster your new time table'
 
     toReturn = ''
 
@@ -134,4 +135,92 @@ def convertTime(x):
     else:
         return ':'.join(x) + ' AM'
 
+def getStrpTime(x):
+    return time.strptime(x, '%H:%M')
 
+def getCommon(chatInstance, USERNAME):
+    #try to load previous data if error = no previous data, create new data file
+    try:
+        with open('./commonTimeFolder/'+chatInstance+'.json','r') as inFile:
+            data = json.load(inFile)
+        
+        if parse(data['endDate']) < datetime.now():
+            data = {
+            'addedUsers':[],
+            'Mon':[['8:15','23:59']],
+            'Tue':[['8:15','23:59']],
+            'Wed':[['8:15','23:59']],
+            'Thu':[['8:15','23:59']],
+            'Fri':[['8:15','23:59']],
+            'startDate': '',
+            'endDate': ''
+        }
+    except:
+        data = {
+            'addedUsers':[],
+            'Mon':[['8:15','23:59']],
+            'Tue':[['8:15','23:59']],
+            'Wed':[['8:15','23:59']],
+            'Thu':[['8:15','23:59']],
+            'Fri':[['8:15','23:59']],
+            'startDate': '',
+            'endDate': ''
+        }
+    
+    #Check if user's timetable has already been added, if so return None
+    if USERNAME in data['addedUsers']:
+        return data
+    
+    #try to load user's time table, if error = user has not uploaded their timetable, return noTimeTable
+    try:
+        df = getDF(USERNAME)
+    except:
+        return 'noTimeTable'
+    
+    #Filter Class & sort values according to day and start time
+    extractedClass = df[df['Meeting Type'] == 'CLASS'].sort_values(['Day(s)','Start Time'])
+
+    #If time table outdated return timeTableOutdated
+    if parse(extractedClass['End Date'][0]) < datetime.now():
+        return 'timeTableOutdated'
+
+    if data['startDate'] == '':
+        data['startDate'] = extractedClass['Start Date'][0]
+        data['endDate'] = extractedClass['End Date'][0]
+
+    bufferTimeConvert = {'11:30':'12:00','15:15':'15:30','18:45':'19:00'}
+
+    #iterate through each row of the dataframe
+    for index, row in extractedClass.iterrows():
+
+        dayToModify = row['Day(s)']
+        dataToModify = data[dayToModify] #this is an array of free time
+        startTimeOfLesson = getStrpTime(row['Start Time'])
+        endTimeOfLesson = getStrpTime(bufferTimeConvert[row['End Time']])
+
+        temp = []
+        count = 0
+        for element in dataToModify:
+            #check if start time is in between the start and end time of the element
+            if startTimeOfLesson >= getStrpTime(element[0]) and startTimeOfLesson< getStrpTime(element[1]):
+                if startTimeOfLesson > getStrpTime(element[0]):
+                    temp.append([element[0], row['Start Time']])
+
+            #check if end time is in between the start and end time of the element
+            if endTimeOfLesson >= getStrpTime(element[0]) and endTimeOfLesson < getStrpTime(element[1]):
+                if endTimeOfLesson == getStrpTime(element[0]):
+                    temp+= dataToModify[count:]
+                    break
+                else:
+                    temp.append([bufferTimeConvert[row['End Time']], element[1]])
+            count+=1
+
+        data[dayToModify] = temp
+    
+    data['addedUsers'].append(USERNAME)
+
+    #save data to json file
+    with open('./commonTimeFolder/'+chatInstance+'.json','w') as outfile:
+        json.dump(data, outfile, indent=4)
+
+    return data

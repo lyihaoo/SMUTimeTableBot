@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 TOKEN = "1563865053:AAHTgGSPVfkfdymPGrVnSy5IZ1O_lyYAbNE"
 
-FILE, COMPUTER, MOBILE, DEVICE = range(4)
+FILE, COMPUTER, MOBILE, DEVICE, ADD = range(5)
 
 
 # Define a few command handlers. These usually take the two arguments update and
@@ -186,23 +186,70 @@ def seeCommands(update: Update, context: CallbackContext):
 
 def commonTime(update: Update, context: CallbackContext):
     """Handle Inline Query"""
-    print('update=',update)
-
+    # print('update=',update)
     keyboard = [
-        [InlineKeyboardButton('To Bot', url = 'https://telegram.me/smu_timetablebot')]
+        [InlineKeyboardButton('Get Common Time', callback_data= str(ADD))],
+        [InlineKeyboardButton('Upload Timetable to File Monster', url = 'https://telegram.me/smu_timetablebot')]
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     results = [
         InlineQueryResultArticle(
             id= uuid4(),
-            title='Test',
-            input_message_content=InputTextMessageContent('Test Msg'),
+            title='Add to Group',
+            input_message_content=InputTextMessageContent('Common Time (Msg to update)'),
             reply_markup = reply_markup
         )
     ]
 
     update.inline_query.answer(results)
+
+def groupAdd(update: Update, context: CallbackContext):
+    """Compile Timetables and return free timeslots"""
+
+    query = update.callback_query
+
+    query.answer()
+    # print('query=',query)
+    USERNAME = query.from_user.username
+    chatInstance = query.chat_instance
+    commonSchedule = getCommon(chatInstance, USERNAME)
+
+    if commonSchedule == 'noTimeTable':
+        newBot = Bot(TOKEN)
+        newBot.sendMessage(chat_id=query.from_user.id, text ="Oh no! File Monster doesn't have your timetable.\n\nUse /newTimeTable to feed File Monster your timetable before adding your timetable in the chat group.")
+    elif commonSchedule == 'timeTableOutdated':
+        newBot = Bot(TOKEN)
+        newBot.sendMessage(chat_id=query.from_user.id, text ="Oh no! Your timetable is outdated!\n\nUse /newTimeTable to feed File Monster your timetable before adding your timetable in the chat group.")
+    else:
+        keyboard = [
+            [InlineKeyboardButton('Add/Update/Refresh', callback_data= str(ADD))],
+            [InlineKeyboardButton('Upload Timetable to File Monster', url = 'https://telegram.me/smu_timetablebot')]
+        ]
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        output=''
+        days = ['Mon','Tue','Wed','Thu','Fri']
+        for key in commonSchedule:
+            if key in days:
+                output+='<b>'+key+'</b>'
+
+                for el in commonSchedule[key]:
+                    output += '\n'+convertTime(el[0]) +' - '+convertTime(el[1])
+
+                output+='\n\n'
+
+        output+= "<b>Users' Timetable Added:</b>"
+
+        for el in commonSchedule['addedUsers']:
+            output+= '\n'+el
+
+        output+= '\n\n<b>Note</b>\n<i>Feed File Monster your Timetable before adding your Timetable here'
+
+        output+= '\n\nSchedule Accurate from '+commonSchedule['startDate']+' to '+commonSchedule['endDate']+'</i>'
+        
+        query.edit_message_text(text=output, reply_markup = reply_markup, parse_mode='HTML')
 
 
 
@@ -246,7 +293,7 @@ def main():
     dp.add_handler(CommandHandler('commands',seeCommands))
     dp.add_handler(CommandHandler('exams', exams))
     dp.add_handler(InlineQueryHandler(commonTime))
-
+    dp.add_handler(CallbackQueryHandler(groupAdd, pattern='^'+str(ADD)+'$'))
 
     # log all errors
     dp.add_error_handler(error)
