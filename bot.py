@@ -27,7 +27,7 @@ FILE, COMPUTER, MOBILE, DEVICE, ADD = range(5)
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update:Update, context: CallbackContext):
     """Send a message when the command /start is issued."""
-    update.message.reply_text('Hello there! The bot is currently in v1.0. Use /newTimeTable to begin!')
+    update.message.reply_text('Hello there!\n\nThe bot is currently in v1.0. Use /newTimeTable to begin!')
 
 def error(update:Update, context: CallbackContext):
     """Log Errors caused by Updates."""
@@ -84,7 +84,6 @@ def mobile(update: Update, context: CallbackContext):
 
     return FILE
 
-
 def generate(update: Update, context: CallbackContext):
     """Save File into Server and Let User Know what are the available commands"""
     update.message.reply_text("Dumping your files into the File Monster...")
@@ -96,14 +95,22 @@ def generate(update: Update, context: CallbackContext):
 
     
     msg = """File Monster ate the File! 🙊
-\n<b>Commands</b>
+\n<b>Individual Commands</b>
 /newTimeTable - Update your time table
 /today - See your lessons for today
 /tmr - See your lessons for tomorrow
 /week - See all the lessons you have in a week
-/exams - See your exams for this semester"""
+/exams - See your exams for this semester
+/credits - For feedback & credits
+\n<b>Group (Find Common Free Time)</b>
+Type @smu_timetablebot in any group chat (without pressing ENTER)
+Wait for the popup to appear and then select 'Add To Group'"""
 
     update.message.reply_text(msg, parse_mode='HTML')
+    newBot = Bot(TOKEN)
+
+    newBot.sendAnimation(chat_id = update.message.chat.id, animation = open('./group.gif','rb'))
+
 
     return ConversationHandler.END
 
@@ -175,12 +182,16 @@ def exams(update: Update, context: CallbackContext):
 def seeCommands(update: Update, context: CallbackContext):
     """Generate All Commands for User to Reference"""
 
-    msg = """<b>Commands Available</b>
+    msg = """<b>Individual Commands Available</b>
 /newTimeTable - Update your time table
 /today - See your lessons for today
 /tmr - See your lessons for tomorrow
 /week - See all the lessons you have in a week
-/exams - See your exams for this semester"""
+/exams - See your exams for this semester
+/credits - For feedback & credits
+\n<b>Group (Find Common Free Time)</b>
+Type @smu_timetablebot in any group chat (without pressing ENTER)
+Wait for the popup to appear and then select 'Add To Group'"""
 
     update.message.reply_text(msg, parse_mode="HTML")
 
@@ -196,8 +207,8 @@ def commonTime(update: Update, context: CallbackContext):
     results = [
         InlineQueryResultArticle(
             id= uuid4(),
-            title='Add to Group',
-            input_message_content=InputTextMessageContent('Common Time (Msg to update)'),
+            title='Add to Chat',
+            input_message_content=InputTextMessageContent('Select Get Common Time to find the common free time that works for anyone in the group.\n\nIf you have not fed File Monster (@smu_timetablebot) your timetable click Upload Timetable and follow the instructions there!'),
             reply_markup = reply_markup
         )
     ]
@@ -229,7 +240,7 @@ def groupAdd(update: Update, context: CallbackContext):
 
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        output=''
+        output='<u>Common Free Time</u>\n\n'
         days = ['Mon','Tue','Wed','Thu','Fri']
         for key in commonSchedule:
             if key in days:
@@ -247,11 +258,15 @@ def groupAdd(update: Update, context: CallbackContext):
 
         output+= '\n\n<b>Note</b>\n<i>Feed File Monster your Timetable before adding your Timetable here'
 
-        output+= '\n\nSchedule Accurate from '+commonSchedule['startDate']+' to '+commonSchedule['endDate']+'</i>'
+        output+= '\n\nSchedule Accurate from\n'+commonSchedule['startDate']+' to '+commonSchedule['endDate']+'</i>'
         
         query.edit_message_text(text=output, reply_markup = reply_markup, parse_mode='HTML')
 
-
+def showCredits(update: Update, context: CallbackContext):
+    """Show credits to user"""
+    update.message.reply_text(
+        "This bot is created as a side project drawing inspirations from @SMUTimetableBot.\n\nThe original bot is no longer working and I've decided to create my own.\n\nFor and issues or feedback HMU at @YiHao123 or connect with me on LinkedIn at https://www.linkedin.com/in/yi-hao-lee-403395203/"
+    )
 
 def main():
     """Start the bot."""
@@ -294,6 +309,7 @@ def main():
     dp.add_handler(CommandHandler('exams', exams))
     dp.add_handler(InlineQueryHandler(commonTime))
     dp.add_handler(CallbackQueryHandler(groupAdd, pattern='^'+str(ADD)+'$'))
+    dp.add_handler(CommandHandler('credits', showCredits))
 
     # log all errors
     dp.add_error_handler(error)
