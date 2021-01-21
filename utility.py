@@ -202,17 +202,22 @@ def getCommon(chatInstance, USERNAME):
         count = 0
         for element in dataToModify:
             #check if start time is in between the start and end time of the element
-            if startTimeOfLesson >= getStrpTime(element[0]) and startTimeOfLesson< getStrpTime(element[1]):
-                if startTimeOfLesson > getStrpTime(element[0]):
-                    temp.append([element[0], row['Start Time']])
+            if startTimeOfLesson > getStrpTime(element[0]) and startTimeOfLesson< getStrpTime(element[1]):
+                # if startTimeOfLesson > getStrpTime(element[0]):
+                temp.append([element[0], row['Start Time']])
 
             #check if end time is in between the start and end time of the element
-            if endTimeOfLesson >= getStrpTime(element[0]) and endTimeOfLesson < getStrpTime(element[1]):
+            if endTimeOfLesson >= getStrpTime(element[0]) and endTimeOfLesson <= getStrpTime(element[1]):
                 if endTimeOfLesson == getStrpTime(element[0]):
                     temp+= dataToModify[count:]
                     break
+                elif endTimeOfLesson == getStrpTime(element[1]):
+                    temp+= dataToModify[count+1:]
+                    break
                 else:
                     temp.append([bufferTimeConvert[row['End Time']], element[1]])
+                    temp+= dataToModify[count+1:]
+                    break
             count+=1
 
         data[dayToModify] = temp
@@ -224,3 +229,7 @@ def getCommon(chatInstance, USERNAME):
         json.dump(data, outfile, indent=4)
 
     return data
+
+
+getCommon('test','YiHao123')
+print(getCommon('test','waiyiwong'))
