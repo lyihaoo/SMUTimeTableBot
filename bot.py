@@ -280,6 +280,18 @@ def showCredits(update: Update, context: CallbackContext):
         "This bot is created as a side project drawing inspirations from @SMUTimetableBot.\n\nThe original bot is no longer working and I've decided to create my own.\n\nFor and issues or feedback HMU at @YiHao123 or connect with me on LinkedIn at https://www.linkedin.com/in/yi-hao-lee-403395203/"
     )
 
+def logUser(update: Update, context: CallbackContext):
+
+    USERNAME= str(update.message.chat.username)
+
+    with open('userLog.json', 'r') as inFile:
+        data = json.load(inFile)
+    
+    if USERNAME not in data:
+        with open ('userLog.json','w') as outFile:
+            data.append(USERNAME)
+            json.dump(data, outFile)
+
 
 def main():
     """Start the bot."""
@@ -314,6 +326,8 @@ def main():
         allow_reentry= True
     )
 
+
+    dp.add_handler(MessageHandler(Filters.all, logUser, run_async = True))
     dp.add_handler(timeTableConv)
     dp.add_handler(CommandHandler('week',week))
     dp.add_handler(CommandHandler('today',seeToday))

@@ -230,3 +230,4 @@ def getCommon(chatInstance, USERNAME):
         json.dump(data, outfile, indent=4)
 
     return data
+
