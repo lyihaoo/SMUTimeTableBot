@@ -32,7 +32,7 @@ FILE, COMPUTER, MOBILE, DEVICE, ADD = range(5)
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update:Update, context: CallbackContext):
     """Send a message when the command /start is issued."""
-    update.message.reply_text('Hello there!\n\nThe bot is currently in v1.0. Use /newTimeTable to begin!\n\n<i>File Monster might be sleeping sometimes and take awhile to load. Please be patient.</i>')
+    update.message.reply_text('Hello there!\n\nThe bot is currently in v1.0. Use /newTimeTable to begin!\n\n<i>File Monster might be sleeping sometimes and take awhile to load. Please be patient.</i>',parse_mode="HTML")
 
 def error(update:Update, context: CallbackContext):
     """Log Errors caused by Updates."""
