@@ -1,5 +1,3 @@
 import json
-with open('userLog.json','r') as outfile:
-    data = json.load(outfile)
-    print(data)
-    print(type(data))
+with open('userLog.json','w') as outfile:
+    json.dump([],outfile)
