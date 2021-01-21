@@ -200,6 +200,7 @@ def getCommon(chatInstance, USERNAME):
 
         temp = []
         count = 0
+        
         for element in dataToModify:
             #check if start time is in between the start and end time of the element
             if startTimeOfLesson > getStrpTime(element[0]) and startTimeOfLesson< getStrpTime(element[1]):
@@ -219,8 +220,8 @@ def getCommon(chatInstance, USERNAME):
                     temp+= dataToModify[count+1:]
                     break
             count+=1
-
-        data[dayToModify] = temp
+        if temp != []:
+            data[dayToModify] = temp
     
     data['addedUsers'].append(USERNAME)
 
