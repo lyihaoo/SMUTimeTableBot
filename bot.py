@@ -32,6 +32,7 @@ FILE, COMPUTER, MOBILE, DEVICE, ADD = range(5)
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update:Update, context: CallbackContext):
     """Send a message when the command /start is issued."""
+    logUser(str(update.message.chat.username))
     update.message.reply_text('Hello there!\n\nThe bot is currently in v1.0. Use /newTimeTable to begin!\n\n<i>File Monster might be sleeping sometimes and take awhile to load. Please be patient.</i>',parse_mode="HTML")
 
 def error(update:Update, context: CallbackContext):
@@ -43,6 +44,7 @@ def error(update:Update, context: CallbackContext):
 
 def newTimeTable(update: Update, context: CallbackContext):
     """Ask User to select which device they using"""
+    logUser(str(update.message.chat.username))
     keyboard =[[
         InlineKeyboardButton("PC/Laptop", callback_data=str(COMPUTER))
     ], [
@@ -143,6 +145,7 @@ def cancel(update: Update, context: CallbackContext):
 def seeToday(update: Update, context: CallbackContext):
     """Call generateToday fn and return user their lesson for today"""
     USERNAME= str(update.message.chat.username)
+    logUser(USERNAME)
 
     try:
         result = generateToday(USERNAME)
@@ -155,6 +158,7 @@ def seeToday(update: Update, context: CallbackContext):
 def seeTmr(update: Update, context: CallbackContext):
     """Call generateTmr fn and return their schedule for tmr"""
     USERNAME= str(update.message.chat.username)
+    logUser(USERNAME)
 
     try:
         result = generateTmr(USERNAME)
@@ -167,6 +171,7 @@ def seeTmr(update: Update, context: CallbackContext):
 def week(update: Update, context: CallbackContext):
     """Call generateWeek fn and return user their week outlook"""
     USERNAME= str(update.message.chat.username)
+    logUser(USERNAME)
 
     try:
         result = generateWeek(USERNAME)
@@ -280,10 +285,7 @@ def showCredits(update: Update, context: CallbackContext):
         "This bot is created as a side project drawing inspirations from @SMUTimetableBot.\n\nThe original bot is no longer working and I've decided to create my own.\n\nFor and issues or feedback HMU at @YiHao123 or connect with me on LinkedIn at https://www.linkedin.com/in/yi-hao-lee-403395203/"
     )
 
-def logUser(update: Update, context: CallbackContext):
-
-    USERNAME= str(update.message.chat.username)
-
+def logUser(USERNAME):
     with open('userLog.json', 'r') as inFile:
         data = json.load(inFile)
     
@@ -325,9 +327,7 @@ def main():
         fallbacks = [CommandHandler('cancel', cancel)],
         allow_reentry= True
     )
-
-
-    dp.add_handler(MessageHandler(Filters.all, logUser, run_async = True))
+    
     dp.add_handler(timeTableConv)
     dp.add_handler(CommandHandler('week',week))
     dp.add_handler(CommandHandler('today',seeToday))
