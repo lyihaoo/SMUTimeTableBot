@@ -32,7 +32,7 @@ FILE, COMPUTER, MOBILE, DEVICE, ADD = range(5)
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update:Update, context: CallbackContext):
     """Send a message when the command /start is issued."""
-    update.message.reply_text('Hello there!\n\nThe bot is currently in v1.0. Use /newTimeTable to begin!')
+    update.message.reply_text('Hello there!\n\nThe bot is currently in v1.0. Use /newTimeTable to begin!\n\n<i>File Monster might be sleeping sometimes and take awhile to load. Please be patient.</i>')
 
 def error(update:Update, context: CallbackContext):
     """Log Errors caused by Updates."""
@@ -112,7 +112,9 @@ def generate(update: Update, context: CallbackContext):
 /credits - For feedback & credits
 \n<b>Group (Find Common Free Time)</b>
 Type @smu_timetablebot in any group chat (without pressing ENTER)
-Wait for the popup to appear and then select 'Add To Group'"""
+Wait for the popup to appear and then select 'Add To Group'
+
+<i>File Monster might be sleeping sometimes and take awhile to load. Please be patient.</i>"""
 
     update.message.reply_text(msg, parse_mode='HTML')
     newBot = Bot(TOKEN)
@@ -199,7 +201,9 @@ def seeCommands(update: Update, context: CallbackContext):
 /credits - For feedback & credits
 \n<b>Group (Find Common Free Time)</b>
 Type @smu_timetablebot in any group chat (without pressing ENTER)
-Wait for the popup to appear and then select 'Add To Group'"""
+Wait for the popup to appear and then select 'Add To Group'
+
+<i>File Monster might be sleeping sometimes and take awhile to load. Please be patient.</i>"""
 
     update.message.reply_text(msg, parse_mode="HTML")
 
