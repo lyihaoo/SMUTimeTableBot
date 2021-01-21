@@ -5,6 +5,8 @@ Usage:
 To Update
 """
 import logging
+import os
+
 from utility import *
 from uuid import uuid4
 
@@ -17,6 +19,9 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
+
+PORT = int(os.environ.get('PORT','8443'))
+
 
 TOKEN = "1563865053:AAHTgGSPVfkfdymPGrVnSy5IZ1O_lyYAbNE"
 
@@ -32,6 +37,9 @@ def start(update:Update, context: CallbackContext):
 def error(update:Update, context: CallbackContext):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
+
+    with open('errorLog.txt','a') as outfile:
+        outfile.write('Update: '+str(update)+' caused error '+str(context.error)+ '\n')
 
 def newTimeTable(update: Update, context: CallbackContext):
     """Ask User to select which device they using"""
@@ -268,6 +276,7 @@ def showCredits(update: Update, context: CallbackContext):
         "This bot is created as a side project drawing inspirations from @SMUTimetableBot.\n\nThe original bot is no longer working and I've decided to create my own.\n\nFor and issues or feedback HMU at @YiHao123 or connect with me on LinkedIn at https://www.linkedin.com/in/yi-hao-lee-403395203/"
     )
 
+
 def main():
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
@@ -315,8 +324,10 @@ def main():
     dp.add_error_handler(error)
 
     # Start the Bot
-    updater.start_polling()
+    # updater.start_polling()
+    updater.start_webhook(listen='0.0.0.0', port=PORT, url_path=TOKEN)
 
+    updater.bot.set_webhook('https://smutimetablebot.herokuapp.com/'+TOKEN)
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.

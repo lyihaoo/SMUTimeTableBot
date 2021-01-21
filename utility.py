@@ -229,7 +229,3 @@ def getCommon(chatInstance, USERNAME):
         json.dump(data, outfile, indent=4)
 
     return data
-
-
-getCommon('test','YiHao123')
-print(getCommon('test','waiyiwong'))
