@@ -1,12 +1,13 @@
 import pandas as pd
 import random
 from dateutil.parser import *
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import time
 
 emojiArr = ['🤯','😎','🥳','🤩','🤤']
 dayArr = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+GMT = timedelta(hours=8)
 
 def getDF(USERID):
     """Read and Return Dataframe Object"""
@@ -18,10 +19,10 @@ def generateToday(USERID):
     df = getDF(USERID)
 
     filterClass = df[df['Meeting Type'] == 'CLASS'].sort_values(by='Start Time')
-    if parse(filterClass['End Date'][0]) < datetime.now():
+    if parse(filterClass['End Date'][0]) < datetime.now()+GMT:
         return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to feed File Monster your new time table'
 
-    dayToday = datetime.today().weekday()
+    dayToday = (datetime.today()+GMT).weekday()
 
     if dayToday >= 5:
         return 'Its the Weekends! 🎉 Go have fun 🎈'
@@ -45,10 +46,10 @@ def generateTmr(USERID):
     df = getDF(USERID)
 
     filterClass = df[df['Meeting Type'] == 'CLASS'].sort_values(by='Start Time')
-    if parse(filterClass['End Date'][0]) < datetime.now():
+    if parse(filterClass['End Date'][0]) < datetime.now()+GMT:
         return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to feed File Monster your new time table'
 
-    dayToday = datetime.today().weekday()
+    dayToday = (datetime.today()+GMT).weekday()
 
     if dayToday == 6:
         dayTmr = 0
@@ -78,7 +79,7 @@ def generateWeek(USERID):
 
     extracted = df[df['Meeting Type'] == 'CLASS'].sort_values(by='Start Time')
 
-    if parse(extracted['End Date'][0]) < datetime.now():
+    if parse(extracted['End Date'][0]) < datetime.now()+GMT:
         return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to feed File Monster your new time table'
 
     resultArr = {'Mon':[], 'Tue':[], 'Wed':[], 'Thu':[], 'Fri':[]}
@@ -111,7 +112,7 @@ def generateExams(USERID):
     
     sortedDF = extracted2.sort_values(['dateObj', 'Start Time'])
 
-    if sortedDF['dateObj'].iloc[-1] < datetime.now():
+    if sortedDF['dateObj'].iloc[-1] < datetime.now()+GMT:
         return 'Oops, your timetable is out dated 🤐\n\nUse the command /newTimeTable to feed File Monster your new time table'
 
     toReturn = ''
