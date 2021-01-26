@@ -173,7 +173,7 @@ def getCommon(chatInstance, USERNAME):
     
     #Check if user's timetable has already been added, if so return None
     if USERNAME in data['addedUsers']:
-        return None
+        return data
     
     #try to load user's time table, if error = user has not uploaded their timetable, return noTimeTable
     try:

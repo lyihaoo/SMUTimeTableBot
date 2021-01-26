@@ -248,8 +248,6 @@ def groupAdd(update: Update, context: CallbackContext):
     elif commonSchedule == 'timeTableOutdated':
         newBot = Bot(TOKEN)
         newBot.sendMessage(chat_id=query.from_user.id, text ="Oh no! Your timetable is outdated!\n\nUse /newTimeTable to feed File Monster your timetable before adding your timetable in the chat group.")
-    elif commonSchedule == None:
-        pass
     else:
         keyboard = [
             [InlineKeyboardButton('Add/Update/Refresh', callback_data= str(ADD)), InlineKeyboardButton('Delete Timetable', callback_data=str(REMOVETIME))],
