@@ -25,7 +25,7 @@ PORT = int(os.environ.get('PORT','8443'))
 
 TOKEN = "1563865053:AAHTgGSPVfkfdymPGrVnSy5IZ1O_lyYAbNE"
 
-FILE, COMPUTER, MOBILE, DEVICE, ADD = range(5)
+FILE, COMPUTER, MOBILE, DEVICE, ADD, REMOVETIME = range(6)
 
 
 # Define a few command handlers. These usually take the two arguments update and
@@ -238,7 +238,6 @@ def groupAdd(update: Update, context: CallbackContext):
     query = update.callback_query
 
     query.answer()
-    # print('query=',query)
     USERNAME = query.from_user.username
     chatInstance = query.chat_instance
     commonSchedule = getCommon(chatInstance, USERNAME)
@@ -249,9 +248,11 @@ def groupAdd(update: Update, context: CallbackContext):
     elif commonSchedule == 'timeTableOutdated':
         newBot = Bot(TOKEN)
         newBot.sendMessage(chat_id=query.from_user.id, text ="Oh no! Your timetable is outdated!\n\nUse /newTimeTable to feed File Monster your timetable before adding your timetable in the chat group.")
+    elif commonSchedule == None:
+        pass
     else:
         keyboard = [
-            [InlineKeyboardButton('Add/Update/Refresh', callback_data= str(ADD))],
+            [InlineKeyboardButton('Add/Update/Refresh', callback_data= str(ADD)), InlineKeyboardButton('Delete Timetable', callback_data=str(REMOVETIME))],
             [InlineKeyboardButton('Upload Timetable to File Monster', url = 'https://telegram.me/smu_timetablebot')]
         ]
 
@@ -303,6 +304,47 @@ def change(update: Update, context: CallbackContext):
 
     update.message.reply_text(output, parse_mode='HTML')
 
+def deleteTime(update: Update, context:CallbackContext):
+    query = update.callback_query
+
+    query.answer()
+    USERNAME = query.from_user.username
+    chatInstance = query.chat_instance
+
+    newSchedule = removeTimeTable(chatInstance,USERNAME)
+
+    if newSchedule == None:
+        pass
+    else:
+        keyboard = [
+            [InlineKeyboardButton('Add/Update/Refresh', callback_data= str(ADD)), InlineKeyboardButton('Delete Timetable', callback_data=str(REMOVETIME))],
+            [InlineKeyboardButton('Upload Timetable to File Monster', url = 'https://telegram.me/smu_timetablebot')]
+        ]
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        output='<u>Common Free Time</u>\n\n'
+        days = ['Mon','Tue','Wed','Thu','Fri']
+        for key in newSchedule:
+            if key in days:
+                output+='<b>'+key+'</b>'
+
+                for el in newSchedule[key]:
+                    output += '\n'+convertTime(el[0]) +' - '+convertTime(el[1])
+
+                output+='\n\n'
+
+        output+= "<b>Users' Timetable Added:</b>"
+
+        for el in newSchedule['addedUsers']:
+            output+= '\n'+el
+
+        output+= '\n\n<b>Note</b>\n<i>Feed File Monster your Timetable before adding your Timetable here'
+
+        output+= '\n\nSchedule Accurate from\n'+newSchedule['startDate']+' to '+newSchedule['endDate']+'</i>'
+        
+        query.edit_message_text(text=output, reply_markup = reply_markup, parse_mode='HTML')
+
 def main():
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
@@ -346,6 +388,7 @@ def main():
     dp.add_handler(CallbackQueryHandler(groupAdd, pattern='^'+str(ADD)+'$'))
     dp.add_handler(CommandHandler('credits', showCredits))
     dp.add_handler(CommandHandler('change',change))
+    dp.add_handler(CallbackQueryHandler(deleteTime, pattern='^'+str(REMOVETIME)+'$'))
 
     # log all errors
     dp.add_error_handler(error)
