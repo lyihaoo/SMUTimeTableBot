@@ -33,7 +33,7 @@ FILE, COMPUTER, MOBILE, DEVICE, ADD = range(5)
 def start(update:Update, context: CallbackContext):
     """Send a message when the command /start is issued."""
     logUser(str(update.message.chat.username))
-    update.message.reply_text('Hello there!\n\nThe bot is currently in v1.0. Use /newTimeTable to begin!\n\n<i>File Monster might be sleeping sometimes and take awhile to load. Please be patient.</i>',parse_mode="HTML")
+    update.message.reply_text('Hello there!\n\nThe bot is currently in v1.1. Use /newTimeTable to begin!\n\n<i>File Monster might be sleeping sometimes and take awhile to load. Please be patient.</i>',parse_mode="HTML")
 
 def error(update:Update, context: CallbackContext):
     """Log Errors caused by Updates."""
@@ -294,6 +294,14 @@ def logUser(USERNAME):
             data.append(USERNAME)
             json.dump(data, outFile)
 
+def change(update: Update, context: CallbackContext):
+    """Show user changelog"""
+    output = ''
+    with open('changeLog.txt','r') as inFile:
+        for line in inFile:
+            output+= line
+
+    update.message.reply_text(output, parse_mode='HTML')
 
 def main():
     """Start the bot."""
@@ -337,6 +345,7 @@ def main():
     dp.add_handler(InlineQueryHandler(commonTime))
     dp.add_handler(CallbackQueryHandler(groupAdd, pattern='^'+str(ADD)+'$'))
     dp.add_handler(CommandHandler('credits', showCredits))
+    dp.add_handler(CommandHandler('change',change))
 
     # log all errors
     dp.add_error_handler(error)

@@ -136,8 +136,10 @@ def convertTime(x):
     else:
         return ':'.join(x) + ' AM'
 
+
 def getStrpTime(x):
     return time.strptime(x, '%H:%M')
+
 
 def getCommon(chatInstance, USERNAME):
     #try to load previous data if error = no previous data, create new data file
@@ -193,12 +195,15 @@ def getCommon(chatInstance, USERNAME):
 
     #iterate through each row of the dataframe
     for index, row in extractedClass.iterrows():
-
+        print(row['End Time'])
         dayToModify = row['Day(s)']
         dataToModify = data[dayToModify] #this is an array of free time
         startTimeOfLesson = getStrpTime(row['Start Time'])
-        endTimeOfLesson = getStrpTime(bufferTimeConvert[row['End Time']])
-
+        try:
+            endTimeOfLesson = getStrpTime(bufferTimeConvert[row['End Time']])
+        except:
+            endTimeOfLesson = getStrpTime(row['End Time'])
+        
         temp = []
         count = 0
         
@@ -217,9 +222,14 @@ def getCommon(chatInstance, USERNAME):
                     temp+= dataToModify[count+1:]
                     break
                 else:
-                    temp.append([bufferTimeConvert[row['End Time']], element[1]])
-                    temp+= dataToModify[count+1:]
-                    break
+                    try:
+                        temp.append([bufferTimeConvert[row['End Time']], element[1]])
+                        temp+= dataToModify[count+1:]
+                        break
+                    except:
+                        temp.append([row['End Time'], element[1]])
+                        temp+= dataToModify[count+1:]
+                        break
             count+=1
         if temp != []:
             data[dayToModify] = temp

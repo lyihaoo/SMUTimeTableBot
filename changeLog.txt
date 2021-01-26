@@ -1,0 +1,4 @@
+V1.1 - Bug Fix
+- Fixed time conversion bug
+
+V1.0 - Bot Deployment

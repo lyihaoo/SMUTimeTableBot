@@ -1,12 +1,12 @@
-import pandas as pd
-import random
-from dateutil.parser import *
-from datetime import datetime, timedelta
-import json
-import time
+def convertTime(x):
+    """Utility Function to Convert 24 Hour input to 12 Hour Input"""
+    x = x.split(':')
 
-emojiArr = ['🤯','😎','🥳','🤩','🤤']
-dayArr = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
-GMT = timedelta(hours=8)
+    if int(x[0]) > 12:
+        return str(int(x[0])-12) + ':' + x[1] + ' PM'
+    elif int(x[0]) == 12:
+        return ':'.join(x) + ' PM'
+    else:
+        return ':'.join(x) + ' AM'
 
-print((datetime.today()+GMT).weekday())
+print(convertTime('17:00'))
