@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 PORT = int(os.environ.get('PORT','8443'))
 
 
-TOKEN = "1563865053:AAHTgGSPVfkfdymPGrVnSy5IZ1O_lyYAbNE"
+TOKEN = "INSERT BOT TOKEN HERE"
 
 FILE, COMPUTER, MOBILE, DEVICE, ADD, REMOVETIME = range(6)
 
